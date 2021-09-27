@@ -176,4 +176,3 @@ if args != None:
 
     else:
         print (f"\nDirectory \"{args.path}\" not found")
-
