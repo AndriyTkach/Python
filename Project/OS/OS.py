@@ -80,19 +80,23 @@ def show_large(dir, target_size):
                     results.append(path)
 
 def get_bytes():
+    if args.size == None:
+        return -1
     lastS = str(args.size[-1])
     if lastS.isdigit():
         bytes = int(args.size)
-    elif lastS == 'B' or lastS == 'b':
+    elif (lastS == 'B') or (lastS == 'b'):
         bytes = int(args.size[:-1]) 
-    elif lastS == 'K' or lastS == 'k':
+    elif (lastS == 'K') or (lastS == 'k'):
         bytes = int(args.size[:-1]) * 1024
-    elif lastS == 'M' or lastS == 'm':
+    elif (lastS == 'M') or (lastS == 'm'):
         bytes = int(args.size[:-1]) * 1048576
-    elif lastS == 'G' or lastS == 'g':
+    elif (lastS == 'G') or (lastS == 'g'):
         bytes = int(args.size[:-1]) * 1073741824
-    elif lastS == 'T' or lastS == 't':
+    elif (lastS == 'T') or (lastS == 't'):
         bytes = int(args.size[:-1]) * 1099511627776
+    else:
+        return -1
     return bytes
 
 def write_to_file(resuts):
@@ -102,39 +106,74 @@ def write_to_file(resuts):
         if len(results) > 1:
             file.write(results[-1])
 
+def parse_command():
+    help = '''-------------------------------------------------------
+commands:
+dublicates               - show dublicates of file
+large -size SIZE_OF_FILE - show files larger than SIZE_OF_FILES
+images                   - show images
+old                      - show files older than 1 year
 
-parser = argparse.ArgumentParser()
-parser.add_argument("command", help="define a command")
-parser.add_argument("-size", "--size", type=str,
-                            help="define size of file")
-parser.add_argument("path", help="define path")
-parser.add_argument("-o", "--output", type=str,
-                            help="save result to file")
+optional arguments:
+-o, --output FILE_NAME   - save results to FILE_NAME.txt file
+-h, --help               - show documentation
 
-args = parser.parse_args()
-print(args.command, args.path)
+examples:
+duplicates D:\\var\\files\\test_folder -o results
+large -size 2G D:\\var\\files\\large_folder
+images D:\\var\\files\\images 
+old D:\\var\\files\\large_folder
+-------------------------------------------------------'''
 
-if os.path.isdir(args.path):
-    path = args.path
-    global results
-    results = []
-    if args.output != None:
-        resf = os.path.abspath(os.curdir) + '\\' + args.output + '.txt'
-        if os.path.isfile(resf):
-            os.remove(resf)
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument("command")
+    parser.add_argument("-size", "--size", type=str)
+    parser.add_argument("path")
+    parser.add_argument("-o", "--output", type=str)
+    parser.add_argument('-h', '--help', action="store_true")
+    
+    try:
+        args = parser.parse_args()
+        if args.help:
+            print(help)
+        return args
+    except:
+        print(help)
+    
+    return None
 
-    if args.command == "images":
-        show_images(path)
-    elif args.command == "old":
-        show_old_files(path)
-    elif args.command == "dublicates":
-        check_for_duplicates(sys.argv[1:])
-    elif args.command == "large":
-        show_large(path, get_bytes())
 
-    if args.output != None:
-        write_to_file(results)
+args = parse_command()
 
-else:
-    print (f"Directory \"{args.path}\" not found")
+if args != None:
+    if os.path.isdir(args.path):
+        path = args.path
+        global results
+        results = []
+        if args.output != None:
+            resf = (os.path.abspath(os.curdir) 
+                    + '\\' + args.output + '.txt')
+            if os.path.isfile(resf):
+                os.remove(resf)
+
+        if args.command == "images":
+            show_images(path)
+        elif args.command == "old":
+            show_old_files(path)
+        elif args.command == "dublicates":
+            check_for_duplicates(sys.argv[1:])
+        elif args.command == "large":
+            bytes = get_bytes()
+            if bytes == -1:
+                print("File size not specified or format is incorrect")
+            else:
+                show_large(path, bytes)
+        else:
+            print("The command does not exist")
+
+        if args.output != None:
+            write_to_file(results)
+
+    else:
+        print (f"\nDirectory \"{args.path}\" not found")
 
