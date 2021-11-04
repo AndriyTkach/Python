@@ -68,7 +68,6 @@ def test_main(mock1, mock2, mock3, mock4, cmd):
 
 
 
-
 @patch('cmd_parser.output')
 def test_old_and_duplicates(mock):
     dir = os.path.dirname(os.path.abspath(__file__)) + "\\images"
