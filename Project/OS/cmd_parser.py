@@ -7,7 +7,6 @@ import mimetypes
 
 
 
-
 def is_image(f):
     try: 
         ext = mimetypes.MimeTypes().guess_type(f)[0]
