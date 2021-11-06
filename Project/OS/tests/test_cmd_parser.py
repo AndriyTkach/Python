@@ -77,5 +77,3 @@ def test_old_and_duplicates(mock):
     p.check_for_duplicates(['duplicates', dir])
     mock.assert_called()
     
-
-
